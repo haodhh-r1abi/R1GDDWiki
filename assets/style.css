@@ -78,9 +78,8 @@ body.collapsed .sidebar{width:0; flex-basis:0; padding-left:0; padding-right:0; 
   background:linear-gradient(120deg,var(--brand),var(--brand-2)); color:#fff;
   border-radius:16px; padding:26px 28px; box-shadow:0 6px 20px rgba(80,50,200,.18);
 }
-.hero h1{margin:0 0 8px; font-size:27px; letter-spacing:.2px}
-.lede{margin:0; max-width:74ch; color:#ece9ff}
-.hero-stats{display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:16px; font-size:14px; color:#f2efff}
+.hero h1{margin:0; font-size:27px; letter-spacing:.2px}
+.hero-stats{display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:14px; font-size:14px; color:#f2efff}
 .hero-stats b{font-size:17px; color:#fff}
 .hero-stats .muted{color:#e8e3ff; opacity:.85}
 
