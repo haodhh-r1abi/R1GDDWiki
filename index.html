@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R1 GDD Wiki</title>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="assets/img/royalmatch.png">
+</head>
+<body>
+
+<header class="topbar">
+  <button class="icon-btn" id="toggle" aria-label="Thu gọn menu" title="Thu gọn menu (Ctrl+B)">☰</button>
+  <a class="brand" href="#" data-home><span class="brand-mark">R1</span><span class="brand-t">GDD Wiki</span></a>
+
+  <div class="crumb" id="crumb"></div>
+
+  <div class="spacer"></div>
+  <button class="icon-btn" id="reload" title="Tải lại trang đang xem" hidden>⟳</button>
+  <a class="icon-btn" id="openNew" title="Mở trong tab mới" target="_blank" rel="noopener" hidden>↗</a>
+</header>
+
+<div class="layout" id="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="side-title">Wiki theo game</div>
+    <nav id="nav"></nav>
+    <div class="side-foot">
+      <a href="#" data-home>← Trang tổng quan</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <!-- Trang tổng quan -->
+    <section id="home" class="home">
+      <div class="hero">
+        <div>
+          <h1>R1 GDD Wiki</h1>
+          <p class="lede">Nơi gom các bộ tài liệu thiết kế đọc ngược từ client game. Mỗi game là một
+          wiki riêng, chạy độc lập — trang này chỉ mở chúng lên và luôn lấy bản mới nhất, nên khi
+          wiki con cập nhật thì ở đây thấy ngay.</p>
+          <div class="hero-stats" id="heroStats"><span class="muted">Đang lấy số liệu…</span></div>
+        </div>
+      </div>
+      <h2 class="sec">Chọn một game</h2>
+      <div class="cards" id="cards"></div>
+      <p class="foot">Nội dung từng game nằm ở wiki riêng trên GitHub Pages; trang này nhúng trực tiếp
+      nên không có bản sao nào bị cũ.</p>
+    </section>
+
+    <!-- Khung xem wiki con -->
+    <section id="viewer" class="viewer" hidden>
+      <div class="vstate" id="vstate" hidden></div>
+      <iframe id="frame" title="Nội dung wiki" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </section>
+  </main>
+</div>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

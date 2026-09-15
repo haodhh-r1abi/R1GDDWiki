@@ -1,0 +1,51 @@
+{
+ "title": "R1 GDD Wiki",
+ "subtitle": "Tài liệu thiết kế đọc ngược — tuyển tập",
+ "games": [
+  {
+   "id": "royalmatch",
+   "name": "Royal Match",
+   "url": "https://haodhh-r1abi.github.io/RoyalMatchWiki/",
+   "icon": "assets/img/royalmatch.png",
+   "studio": "Dream Games",
+   "genre": "Match-3",
+   "note": "Bộ tài liệu lớn nhất — 80 tính năng, 14.851 màn."
+  },
+  {
+   "id": "magicsort",
+   "name": "Magic Sort",
+   "url": "https://haodhh-r1abi.github.io/MagicSortWiki/",
+   "icon": "assets/img/magicsort.png",
+   "studio": "Grand Games",
+   "genre": "Sort puzzle",
+   "note": "Nhiều dòng cấu hình nhất — 9.498 dòng."
+  },
+  {
+   "id": "blockout",
+   "name": "Block Out!",
+   "url": "https://haodhh-r1abi.github.io/BlockOutWiki/",
+   "icon": "assets/img/blockout.png",
+   "studio": "Grand Games",
+   "genre": "Color sort puzzle",
+   "note": "Có đối chiếu cấu hình client vs server lấy từ máy thật."
+  },
+  {
+   "id": "matchfactory",
+   "name": "Match Factory",
+   "url": "https://haodhh-r1abi.github.io/MatchFactoryWiki/",
+   "icon": "assets/img/matchfactory.png",
+   "studio": "Peak Games",
+   "genre": "Match-3D",
+   "note": "Unity 6 / IL2CPP metadata v39 — 34.483 màn."
+  },
+  {
+   "id": "fishsort",
+   "name": "Fish Sort Puzzle",
+   "url": "https://haodhh-r1abi.github.io/FishSortPuzzleWiki/",
+   "icon": "assets/img/fishsort.png",
+   "studio": "—",
+   "genre": "Sort puzzle",
+   "note": "Bộ nhỏ nhất — 26 tính năng."
+  }
+ ]
+}
