@@ -9,23 +9,25 @@
 </head>
 <body>
 
-<header class="topbar">
-  <button class="icon-btn" id="toggle" aria-label="Thu gọn menu" title="Thu gọn menu (Ctrl+B)">☰</button>
-  <a class="brand" href="#" data-home><span class="brand-mark">R1</span><span class="brand-t">GDD Wiki</span></a>
-
-  <div class="crumb" id="crumb"></div>
-
-  <div class="spacer"></div>
-  <button class="icon-btn" id="reload" title="Tải lại trang đang xem" hidden>⟳</button>
-  <a class="icon-btn" id="openNew" title="Mở trong tab mới" target="_blank" rel="noopener" hidden>↗</a>
-</header>
-
 <div class="layout" id="layout">
+
   <aside class="sidebar" id="sidebar">
+    <div class="side-head">
+      <button class="icon-btn" id="toggle" aria-label="Thu gọn menu" title="Thu gọn menu (Ctrl+B)">☰</button>
+      <a class="brand" href="#" data-home title="Trang tổng quan">
+        <span class="brand-mark">R1</span><span class="brand-t">GDD Wiki</span>
+      </a>
+    </div>
+
     <div class="side-title">Wiki theo game</div>
     <nav id="nav"></nav>
+
     <div class="side-foot">
-      <a href="#" data-home>← Trang tổng quan</a>
+      <a class="icon-btn" href="#" data-home title="Trang tổng quan" aria-label="Trang tổng quan">⌂</a>
+      <span class="acts" id="acts" hidden>
+        <button class="icon-btn" id="reload" title="Tải lại trang đang xem">⟳</button>
+        <a class="icon-btn" id="openNew" title="Mở trong tab mới" target="_blank" rel="noopener">↗</a>
+      </span>
     </div>
   </aside>
 
@@ -50,6 +52,7 @@
       <iframe id="frame" title="Nội dung wiki" referrerpolicy="no-referrer-when-downgrade"></iframe>
     </section>
   </main>
+
 </div>
 
 <script src="assets/app.js"></script>

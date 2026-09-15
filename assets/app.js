@@ -84,9 +84,7 @@
     $('#home').hidden = false;
     $('#viewer').hidden = true;
     $('#frame').removeAttribute('src');
-    $('#crumb').innerHTML = '';
-    $('#openNew').hidden = true;
-    $('#reload').hidden = true;
+    $('#acts').hidden = true;
     document.title = CFG ? CFG.title : 'R1 GDD Wiki';
     markNav(null);
   }
@@ -107,14 +105,13 @@
     try { localStorage.setItem(LS_LAST, g.id); } catch (e) {}
 
     document.title = g.name + ' – ' + (CFG ? CFG.title : 'R1 GDD Wiki');
-    $('#crumb').innerHTML = '';
-    $('#crumb').appendChild(el('img', { src: g.icon, alt: '' }));
-    $('#crumb').appendChild(el('b', { text: g.name }));
 
     var src = baseOf(g) + (path || '');
     var a = $('#openNew');
-    a.href = src; a.hidden = false;
-    $('#reload').hidden = false;
+    a.href = src;
+    a.setAttribute('title', 'Mở ' + g.name + ' trong tab mới');
+    $('#reload').setAttribute('title', 'Tải lại ' + g.name);
+    $('#acts').hidden = false;
 
     state('load', g);
     var f = $('#frame');
@@ -213,8 +210,11 @@
     cfg.games.forEach(function (g) {
       BY_ID[g.id] = g;
 
-      // menu trai
-      var item = el('a', { class: 'nav-item', href: '#/' + g.id, 'data-id': g.id }, [
+      // menu trai — co title de khi thu gon con rail chi con icon van biet la game nao
+      var item = el('a', {
+        class: 'nav-item', href: '#/' + g.id, 'data-id': g.id,
+        title: g.name + (g.studio && g.studio !== '—' ? ' · ' + g.studio : '')
+      }, [
         el('img', { src: g.icon, alt: '' }),
         el('span', { class: 'n' }, [
           el('b', { text: g.name }),

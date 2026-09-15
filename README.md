@@ -31,17 +31,34 @@ Rồi vào `http://127.0.0.1:8742/`.
 
 Khi đưa lên GitHub Pages thì mở thẳng địa chỉ trang là chạy (`.nojekyll` đã có sẵn).
 
+## Bố cục
+
+Không có thanh ngang phía trên — mọi thứ nằm gọn trong menu trái, để nội dung wiki con
+**chiếm trọn chiều cao màn hình**. Menu trái gồm ba phần:
+
+- **Đầu menu**: nút **☰** thu gọn + tên trang (bấm vào là về trang tổng quan)
+- **Giữa**: danh sách 5 game (phần duy nhất cuộn được)
+- **Chân menu**: ba nút icon — **⌂** về trang tổng quan (luôn có), **⟳** tải lại và **↗** mở
+  tab riêng (chỉ hiện khi đang xem một game)
+
 ## Thao tác
 
 | | |
 |---|---|
-| Thu gọn / mở menu trái | nút **☰** trên thanh đầu, hoặc **Ctrl+B** |
-| Về trang tổng quan | bấm chữ **GDD Wiki** ở góc trái, hoặc link cuối menu |
+| Thu gọn / mở menu | nút **☰** ở đầu menu, hoặc **Ctrl+B** |
+| Về trang tổng quan | nút **⌂** ở chân menu, hoặc tên trang ở đầu menu |
 | Tải lại trang đang xem | nút **⟳** |
 | Mở wiki con ra tab riêng | nút **↗** |
 
-Trạng thái thu gọn của menu được nhớ lại cho lần sau (localStorage). Lần đầu vào bằng
-màn hình hẹp (< 820px) thì menu tự thu lại; chọn một game trên màn hình hẹp cũng tự thu.
+Thu gọn **không làm menu biến mất** mà rút lại thành một dải icon hẹp (56px): vẫn còn nút ☰,
+icon 5 game (rê chuột có tên), và ba nút ở chân. Làm vậy vì nút thu gọn nằm trong chính
+menu — nếu thu về 0 thì không còn chỗ nào bấm để mở lại.
+
+Trạng thái thu gọn được nhớ cho lần sau (localStorage). Lần đầu vào bằng màn hình hẹp
+(< 820px) thì menu tự thu; chọn một game trên màn hình hẹp cũng tự thu.
+
+> **Ctrl+B chỉ ăn khi con trỏ đang ở phần menu.** Lúc bạn đang đọc bên trong wiki con, phím
+> bấm thuộc về iframe khác tên miền nên trang ngoài không nhận được — dùng nút ☰ thay thế.
 
 ## Địa chỉ chia sẻ được
 
