@@ -46,6 +46,15 @@
    "studio": "—",
    "genre": "Sort puzzle",
    "note": "Bộ nhỏ nhất — 26 tính năng."
+  },
+  {
+   "id": "glow",
+   "name": "Glow Fashion Idol",
+   "url": "https://haodhh-r1abi.github.io/GlowFashionIdolWiki/",
+   "icon": "assets/img/glow.png",
+   "studio": "CrazyLabs",
+   "genre": "Dress-up 3D",
+   "note": "48 tính năng — bộ đang viết dở, mạnh ở phần API máy chủ và enum."
   }
  ]
 }
