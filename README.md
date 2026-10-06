@@ -1,6 +1,6 @@
 # R1 GDD Wiki — trang tổng hợp
 
-Trang tĩnh gom 6 bộ wiki GDD lại một chỗ: menu trái chọn game, nội dung game hiện bên phải.
+Trang tĩnh gom 7 bộ wiki GDD lại một chỗ: menu trái chọn game, nội dung game hiện bên phải.
 
 **Nội dung từng game không được sao chép vào đây.** Mỗi game được nhúng thẳng bằng `<iframe>`
 từ GitHub Pages của nó, nên wiki con cập nhật là ở đây thấy ngay — không có bản sao nào bị cũ.
@@ -17,6 +17,7 @@ mỗi lần mở.
 | Match Factory | https://haodhh-r1abi.github.io/MatchFactoryWiki/ |
 | Fish Sort Puzzle | https://haodhh-r1abi.github.io/FishSortPuzzleWiki/ |
 | Glow Fashion Idol | https://haodhh-r1abi.github.io/GlowFashionIdolWiki/ |
+| Gossip Harbor | https://haodhh-r1abi.github.io/GossipHarborWiki/ |
 
 ## Dùng
 
@@ -38,7 +39,7 @@ Không có thanh ngang phía trên — mọi thứ nằm gọn trong menu trái,
 **chiếm trọn chiều cao màn hình**. Menu trái gồm ba phần:
 
 - **Đầu menu**: nút **☰** thu gọn + tên trang (bấm vào là về trang tổng quan)
-- **Giữa**: danh sách 6 game (phần duy nhất cuộn được)
+- **Giữa**: danh sách 7 game (phần duy nhất cuộn được)
 - **Chân menu**: ba nút icon — **⌂** về trang tổng quan (luôn có), **⟳** tải lại và **↗** mở
   tab riêng (chỉ hiện khi đang xem một game)
 
@@ -52,7 +53,7 @@ Không có thanh ngang phía trên — mọi thứ nằm gọn trong menu trái,
 | Mở wiki con ra tab riêng | nút **↗** |
 
 Thu gọn **không làm menu biến mất** mà rút lại thành một dải icon hẹp (56px): vẫn còn nút ☰,
-icon 6 game (rê chuột có tên), và ba nút ở chân. Làm vậy vì nút thu gọn nằm trong chính
+icon 7 game (rê chuột có tên), và ba nút ở chân. Làm vậy vì nút thu gọn nằm trong chính
 menu — nếu thu về 0 thì không còn chỗ nào bấm để mở lại.
 
 Trạng thái thu gọn được nhớ cho lần sau (localStorage). Lần đầu vào bằng màn hình hẹp
@@ -103,14 +104,14 @@ R1GDDWiki/
 │  ├─ style.css
 │  ├─ app.js             định tuyến, thu gọn menu, lấy số liệu trực tiếp
 │  ├─ games.json         danh sách game — chỗ duy nhất cần sửa khi thêm game
-│  └─ img/               icon 6 game
+│  └─ img/               icon 7 game
 ├─ .nojekyll
 └─ README.md
 ```
 
 ## Ghi chú kỹ thuật
 
-- 6 wiki con đều trả `Access-Control-Allow-Origin: *` và **không** đặt `X-Frame-Options`
+- 7 wiki con đều trả `Access-Control-Allow-Origin: *` và **không** đặt `X-Frame-Options`
   hay `frame-ancestors`, nên vừa nhúng iframe vừa `fetch()` đều được.
 - Nếu một wiki con không mở lên trong 12 giây, trang sẽ hiện thông báo kèm nút mở tab mới
   thay vì để khung trắng.

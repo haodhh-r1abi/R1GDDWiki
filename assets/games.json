@@ -55,6 +55,15 @@
    "studio": "CrazyLabs",
    "genre": "Dress-up 3D",
    "note": "48 tính năng — bộ đang viết dở, mạnh ở phần API máy chủ và enum."
+  },
+  {
+   "id": "gossipharbor",
+   "name": "Gossip Harbor",
+   "url": "https://haodhh-r1abi.github.io/GossipHarborWiki/",
+   "icon": "assets/img/gossipharbor.png",
+   "studio": "Microfun",
+   "genre": "Merge-2 + Story",
+   "note": "Giải mã cả Lua, CSDL người chơi và 293 chương truyện; có phân tích sale & event."
   }
  ]
 }
