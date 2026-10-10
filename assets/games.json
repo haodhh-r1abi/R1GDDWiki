@@ -18,7 +18,7 @@
    "icon": "assets/img/magicsort.png",
    "studio": "Grand Games",
    "genre": "Sort puzzle",
-   "note": "Nhiều dòng cấu hình nhất — 9.498 dòng."
+   "note": "Cập nhật 10/10/2026: 15 báo cáo, 18 case xác minh, ảnh LDPlayer và Excel 10 sheet."
   },
   {
    "id": "blockout",
@@ -27,7 +27,7 @@
    "icon": "assets/img/blockout.png",
    "studio": "Grand Games",
    "genre": "Color sort puzzle",
-   "note": "Có đối chiếu cấu hình client vs server lấy từ máy thật."
+   "note": "Cập nhật 10/10/2026: 15 báo cáo, 17 case xác minh, ảnh LDPlayer và Excel 10 sheet."
   },
   {
    "id": "matchfactory",
