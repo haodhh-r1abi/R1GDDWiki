@@ -135,3 +135,6 @@ body.collapsed .acts{flex-direction:column}
   .hero{padding:18px}
   .hero h1{font-size:22px}
 }
+
+/* Comparative research article entry. */
+.cross-report{margin:10px 0 26px;padding:23px;border:1px solid #d8d0ee;border-left:5px solid #654bb8;border-radius:10px;background:#f5f1fd}.cross-report h2{margin:7px 0;font-size:24px}.cross-report p{max-width:820px;color:#5e647c}.cross-report .eyebrow{font-size:12px;font-weight:700;color:#6d52ac}.cross-report>a{display:inline-block;font-weight:700;margin:4px 0}.cross-nav{display:block;margin:12px 10px 0;padding:10px;border-radius:8px;background:#f0ebfc;font-size:13px;font-weight:650}body.collapsed .cross-nav{display:none}

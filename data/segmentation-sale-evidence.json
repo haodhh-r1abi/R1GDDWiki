@@ -1,0 +1,1250 @@
+{
+  "title": "Luật phân nhóm user và chọn sale — ba game",
+  "prepared_at": "2026-10-13",
+  "rules": [
+    {
+      "game": "royal",
+      "id": "RM-R01",
+      "title": "Payer là cờ lịch sử, không phải thang Whale",
+      "rule": "(UserData & 1) != 0",
+      "output": "IsPaidUser = true/false.",
+      "limits": "Chưa theo dõi giao dịch mới. Không suy luận client là nguồn sự thật duy nhất của thanh toán hoặc backend.",
+      "sources": [
+        {
+          "path": "RoyalMatch_HExport/com.dreamgames.royalmatch_Unity_20260908_164005_76eddf2f/RecoveredNative/PseudoC/Assembly-CSharp/Royal/Player/Context/Data/Persistent/BasicUserData.c",
+          "line_start": 214,
+          "line_end": 225,
+          "notes": "Getter trả trực tiếp bit0."
+        },
+        {
+          "path": "RoyalMatch_HExport/com.dreamgames.royalmatch_Unity_20260908_164005_76eddf2f/RecoveredNative/PseudoC/Assembly-CSharp/Royal/Player/Context/Data/Persistent/BasicUserData.c",
+          "line_start": 330,
+          "line_end": 402,
+          "notes": "UpdateUserData(PurchaseProduct) đặt bit0 true."
+        }
+      ]
+    },
+    {
+      "game": "royal",
+      "id": "RM-R02",
+      "title": "Ghi gói bundle/coin lớn nhất đã mua",
+      "rule": "Đặt payer bit; với bundle, chỉ cập nhật highest bundle khi numberId mới lớn hơn giá trị cũ; với nhánh không phải bundle, IsPass chặn cập nhật highest single; các sản phẩm còn lại chỉ cập nhật khi numberId lớn hơn giá trị cũ.",
+      "output": "GetHighestBoughtBundle đọc bits2..9; GetHighestBoughtSinglePackage đọc bits14..21.",
+      "limits": "numberId là trường sản phẩm; không gọi nó là tiền USD hay tổng coin đang sở hữu. Pseudo-C prototype PurchaseProduct có dấu hiệu layout/calling convention chưa hoàn hảo.",
+      "sources": [
+        {
+          "path": "RoyalMatch_HExport/com.dreamgames.royalmatch_Unity_20260908_164005_76eddf2f/RecoveredNative/PseudoC/Assembly-CSharp/Royal/Player/Context/Data/Persistent/BasicUserData.c",
+          "line_start": 284,
+          "line_end": 313,
+          "notes": "Hai getter ExtractByte."
+        },
+        {
+          "path": "RoyalMatch_HExport/com.dreamgames.royalmatch_Unity_20260908_164005_76eddf2f/RecoveredNative/PseudoC/Assembly-CSharp/Royal/Player/Context/Data/Persistent/BasicUserData.c",
+          "line_start": 330,
+          "line_end": 402,
+          "notes": "SetBit, so sánh product ID với giá trị cũ, bỏ nhánh highest single cho pass."
+        }
+      ]
+    },
+    {
+      "game": "royal",
+      "id": "RM-R03",
+      "title": "Cập nhật Offer/Special Offer theo version khác, không phải bắt buộc lớn hơn",
+      "rule": "Nếu version mới ==0 hoặc bằng version local thì return; còn lại ghi newSegment và version mới.",
+      "output": "UserOfferSegment hoặc UserSpecialOfferSegment được thay bằng giá trị backend cung cấp.",
+      "limits": "Không nên viết chỉ cập nhật khi serverVersion>localVersion. Hàm này chấp nhận version khác và khác0; điều kiện upstream có thể bổ sung nhưng chưa được suy diễn.",
+      "sources": [
+        {
+          "path": "RoyalMatch_HExport/com.dreamgames.royalmatch_Unity_20260908_164005_76eddf2f/RecoveredNative/PseudoC/Assembly-CSharp/Royal/Player/Context/Data/Persistent/BasicUserData.c",
+          "line_start": 1078,
+          "line_end": 1144,
+          "notes": "UpdateOfferSegment; guard ở1104..1108."
+        },
+        {
+          "path": "RoyalMatch_HExport/com.dreamgames.royalmatch_Unity_20260908_164005_76eddf2f/RecoveredNative/PseudoC/Assembly-CSharp/Royal/Player/Context/Data/Persistent/BasicUserData.c",
+          "line_start": 1148,
+          "line_end": 1218,
+          "notes": "UpdateSpecialOfferSegment có guard tương tự."
+        }
+      ]
+    },
+    {
+      "game": "royal",
+      "id": "RM-R04",
+      "title": "Dynamic Offer lưu segment từ payload riêng",
+      "rule": "Có payload; UserSegment không âm; version payload khác version local (so sánh16bit trong pseudo-C) thì lưu segment và version.",
+      "output": "UserKeyValue DynamicOfferSegment / DynamicOfferSegmentVersion.",
+      "limits": "Trong Ping đã đọc chỉ có SegmentVersion1334 ở object này, không có UserSegment được serialize. Không tự gán người test vào segment1 từ việc thiếu field.",
+      "sources": [
+        {
+          "path": "RoyalMatch_HExport/com.dreamgames.royalmatch_Unity_20260908_164005_76eddf2f/RecoveredNative/PseudoC/Assembly-CSharp/Royal/Player/Context/Units/DynamicOfferManager.c",
+          "line_start": 2336,
+          "line_end": 2452,
+          "notes": "UpdateSegment nhận protocol object và ghi hai key; không có ngưỡng chi tiêu."
+        },
+        {
+          "path": "RoyalMatch_HExport/GameDesign/facts/runtime/decoded_new/004_1_PingResponse.json",
+          "line_start": 314,
+          "line_end": 318,
+          "notes": "DynamicOfferEventInfoList rỗng; SegmentVersion 1334. Timestamp capture thô 26/09/09 13:46:50.826, không phải ngày chụp UI 06/10."
+        }
+      ]
+    },
+    {
+      "game": "royal",
+      "id": "RM-R05",
+      "title": "Ladder chọn config server hay config phân tệp",
+      "rule": "ShouldUseSegmentedConfig = offerSegment >5. Tại luồng load: nếu >5 tải resource theo GetSegmentedLadderOfferConfigPath; nếu <=5 giữ eventConfig nhận được.",
+      "output": "segment<=5: nội dung config server. segment 6 hoặc 7: hậu tố_20. segment>=8: hậu tố_50 trong miền segment dương bình thường.",
+      "limits": "Số6/7/8 là kết quả phân nhóm, không phải chi6/7/8 USD. Chưa biết vì sao backend gán segment 8. Theme mapping có bảng nhảy trong native; không khẳng định mọi theme trỏ cùng prefix.",
+      "sources": [
+        {
+          "path": "RoyalMatch_HExport/com.dreamgames.royalmatch_Unity_20260908_164005_76eddf2f/RecoveredNative/PseudoC/Assembly-CSharp/Royal/Player/Context/Units/LadderOfferManager.c",
+          "line_start": 1969,
+          "line_end": 1984,
+          "notes": "Chỗ gọi thay eventConfig khi local_28>5."
+        },
+        {
+          "path": "RoyalMatch_HExport/com.dreamgames.royalmatch_Unity_20260908_164005_76eddf2f/RecoveredNative/PseudoC/Assembly-CSharp/Royal/Player/Context/Units/LadderOfferManager.c",
+          "line_start": 2135,
+          "line_end": 2192,
+          "notes": "Mẫu segmentedladder_offer_{0}_{1}; bitmask(offerSegment &0xfffffffe)==6 chọn20; mặc định50; predicate>5."
+        }
+      ]
+    },
+    {
+      "game": "royal",
+      "id": "RM-R06",
+      "title": "Ý nghĩa tài nguyên Ladder _3/_6 và _20/_50",
+      "rule": "Lựa chọn file bởi RM-R05; file chứa danh sách steps.",
+      "output": "_3_20:15 step, trả ở4/7/10/13 với p20/30/50/100. _3_50:9 step, trả ở4/7 với p50/100. _6_20:27 step, trả ở4/10/16/22. _6_50:15 step, trả ở4/10.",
+      "limits": "Giá thực tế bằng tiền phải tra product/store snapshot; không lấy20/50 làm số USD hiển thị. Ví dụ snapshot ladder.20=599000₫, ladder.50=1499000₫.",
+      "sources": [
+        {
+          "path": "RoyalMatch_HExport/com.dreamgames.royalmatch_Unity_20260908_164005_76eddf2f/UnityExport/ExportedProject/Assets/Resources/segmentedladder_offer_3_20.json",
+          "jsonpath": "$.steps",
+          "line_start": 1,
+          "line_end": 1
+        },
+        {
+          "path": "RoyalMatch_HExport/com.dreamgames.royalmatch_Unity_20260908_164005_76eddf2f/UnityExport/ExportedProject/Assets/Resources/segmentedladder_offer_3_50.json",
+          "jsonpath": "$.steps",
+          "line_start": 1,
+          "line_end": 1
+        },
+        {
+          "path": "RoyalMatch_HExport/com.dreamgames.royalmatch_Unity_20260908_164005_76eddf2f/UnityExport/ExportedProject/Assets/Resources/segmentedladder_offer_6_20.json",
+          "jsonpath": "$.steps",
+          "line_start": 1,
+          "line_end": 1
+        },
+        {
+          "path": "RoyalMatch_HExport/com.dreamgames.royalmatch_Unity_20260908_164005_76eddf2f/UnityExport/ExportedProject/Assets/Resources/segmentedladder_offer_6_50.json",
+          "jsonpath": "$.steps",
+          "line_start": 1,
+          "line_end": 1
+        },
+        {
+          "path": "RoyalMatch_HExport/GameDesign/facts/runtime/server_configs/App_StoredProducts_VND.json",
+          "line_start": 208,
+          "line_end": 210,
+          "notes": "ladder.20: 599.000 VND trong snapshot; chưa kiểm giá live ngày 13/10."
+        },
+        {
+          "path": "RoyalMatch_HExport/GameDesign/facts/runtime/server_configs/App_StoredProducts_VND.json",
+          "line_start": 228,
+          "line_end": 230,
+          "notes": "ladder.50: 1.499.000 VND trong snapshot; chưa kiểm giá live ngày 13/10."
+        }
+      ]
+    },
+    {
+      "game": "royal",
+      "id": "RM-R07",
+      "title": "No-Ads chuyển sang Bundle tại ngưỡng5000 coin",
+      "rule": "maxBoughtCoins >=5000; duyệt tìm ô isNoAdsPackage",
+      "output": "Thay config ô No-Ads bằng noAdsBundleConfig.",
+      "limits": "Pseudo-C bị lệch tên/cast tham số ở expression và vòng lặp; ngưỡng/hành động rõ nhưng không coi đoạn C này là source có thể compile nguyên xi. Nếu danh sách không có No-Ads thì không tự tạo ô.",
+      "sources": [
+        {
+          "path": "RoyalMatch_HExport/com.dreamgames.royalmatch_Unity_20260908_164005_76eddf2f/RecoveredNative/PseudoC/Assembly-CSharp/Royal/Scenes/Home/Ui/Sections/Shop/Package/APricingStrategy.c",
+          "line_start": 4395,
+          "line_end": 4445,
+          "notes": "Signature nêu maxBoughtCoins; constant comparison5000.0; copy noAdsBundleConfig."
+        }
+      ]
+    },
+    {
+      "game": "royal",
+      "id": "RM-R08",
+      "title": "Shop strategy hiện tại luôn Default ở hàm quyết định",
+      "rule": "Không có branch theo segment ở thân hàm phục hồi; tạo DefaultPricingStrategy rồi gán PricingStrategyInstance.",
+      "output": "DefaultPricingStrategy.",
+      "limits": "Chỉ kết luận đường quyết định đã đọc của snapshotv38174; không áp đặt cho mọi phiên bản hoặc cho giá mọi offer. DefaultShop vẫn có thể chọn nội dung khác theo lịch sử mua và offer-specific config.",
+      "sources": [
+        {
+          "path": "RoyalMatch_HExport/com.dreamgames.royalmatch_Unity_20260908_164005_76eddf2f/RecoveredNative/PseudoC/Assembly-CSharp/Royal/Infrastructure/Services/Native/Purchase/PurchaseHelper.c",
+          "line_start": 20147,
+          "line_end": 20182,
+          "notes": "Cấp phát/constructor Default và assignment instance."
+        }
+      ]
+    },
+    {
+      "game": "royal",
+      "id": "RM-R09",
+      "title": "DynamicOfferMeta chọn bảng rồi match segment",
+      "rule": "currency==0→coinSegments; nếu tiền tệ khác và yêu cầu alternative, dùng alternativeSegments khi không rỗng, rỗng thì fallbacksegments; mặc định segments. Predicate tìm: segmentConfig.segment==segment.",
+      "output": "Config của segment phù hợp trong bảng đã chọn.",
+      "limits": "Hàm chính có cảnh báo bad instruction data sau phần lookup. Chỉ xác nhận phần chọn bảng và predicate, không mở rộng kết luận về toàn bộ fallback/error handling.",
+      "sources": [
+        {
+          "path": "RoyalMatch_HExport/com.dreamgames.royalmatch_Unity_20260908_164005_76eddf2f/RecoveredNative/PseudoC/Assembly-CSharp/Royal/Scenes/Home/Ui/Dialogs/Offer/DynamicOffers/DynamicOfferMeta.c",
+          "line_start": 101,
+          "line_end": 117,
+          "notes": "Chọn ba bảng."
+        },
+        {
+          "path": "RoyalMatch_HExport/com.dreamgames.royalmatch_Unity_20260908_164005_76eddf2f/RecoveredNative/PseudoC/Assembly-CSharp/DynamicOfferMeta.c",
+          "line_start": 32,
+          "line_end": 47,
+          "notes": "Lambda match segment bằng nhau."
+        }
+      ]
+    },
+    {
+      "game": "royal",
+      "id": "RM-R10",
+      "title": "Legacy Special Offer chọn bậc dựa trên highest product ID",
+      "rule": "Caller chỉ gọi CalculateFirstStepForOldVersions khi step==0. Hàm scan từ cuối mảng, bỏ qua khi maxBoughtID<step.p, gặp phần tử thỏa step.p<=maxBoughtID thì trả step.s; nếu không tìm thấy trả1; confignull trả0.",
+      "output": "Mã step của bậc tìm được theo thứ tự mảng.",
+      "limits": "Không tự áp dụng cho path mới/server-specified step. Trình tự mảng config có ý nghĩa; không gọi kết quả là bậc gần nhất phía trên khi chưa kiểm tra contract.",
+      "sources": [
+        {
+          "path": "RoyalMatch_HExport/com.dreamgames.royalmatch_Unity_20260908_164005_76eddf2f/RecoveredNative/PseudoC/Assembly-CSharp/Royal/Player/Context/Units/OfferManager.c",
+          "line_start": 3499,
+          "line_end": 3505,
+          "notes": "Guard step==0 trước gọi legacy."
+        },
+        {
+          "path": "RoyalMatch_HExport/com.dreamgames.royalmatch_Unity_20260908_164005_76eddf2f/RecoveredNative/PseudoC/Assembly-CSharp/Royal/Player/Context/Units/OfferManager.c",
+          "line_start": 3555,
+          "line_end": 3670,
+          "notes": "Scan ngược, Math.Max, predicate và return step.s."
+        }
+      ]
+    },
+    {
+      "game": "royal",
+      "id": "RM-R11",
+      "title": "Eligibility của Dynamic Offer độc lập với classifier",
+      "rule": "Trong lớp config phục hồi có các field gating; chưa tái xác minh tất cả dấu so sánh runtime trong lượt này.",
+      "output": "Cho phép mỗi offer lọc thời điểm/đối tượng đủ điều kiện và ưu tiên ở Home/Favor/Shop.",
+      "limits": "Không công bố boundary minLevel hay minPlayerDays bằng số nếu chưa có config/branch xác nhận.",
+      "sources": [
+        {
+          "path": "RoyalMatch_HExport/com.dreamgames.royalmatch_Unity_20260908_164005_76eddf2f/RecoveredCodeExperimental/Source/Assembly-CSharp/Royal.Scenes.Home.Ui.Dialogs.Offer.DynamicOffers/DynamicOfferConfig.cs",
+          "line_start": 1,
+          "line_end": 53,
+          "notes": "Chỉ dùng field schema; không dùng C# stub làm implementation."
+        }
+      ]
+    },
+    {
+      "game": "magic",
+      "id": "MS-R01",
+      "title": "Fetch nhãn do backend cấp",
+      "rule": "Khi FetchSegment nhận response success=true, ghi nhãn trả về vào model cache và đánh dấu dữ liệu cần lưu; đồng thời phát AdsDisabledFromBackendSignal với cờ is_ads_disabled.",
+      "output": "Nhãn mới trong SegmentDataModel, không phải kết quả classifier tính tại client.",
+      "limits": [
+        "Không thấy ngưỡng chi tiêu/công thức chấm điểm trong phương thức này.",
+        "Không suy ra mỗi nhãn quyết định quảng cáo theo luật nào chỉ vì response có cả hai trường.",
+        "Nhánh response thất bại không ghi đè model trong thân hàm đã đọc; điều kiện lỗi bên ngoài chưa khảo sát toàn bộ."
+      ],
+      "sources": [
+        {
+          "path": "MagicSort_HExport/com.grandgames.magicsort_Unity_20260909_112501/RecoveredNative/PseudoC/Assembly-CSharp/Modules/Contexts/Application/ServerCommunication/Scripts/SegmentService.c",
+          "line": 6,
+          "detail": "MoveNext của FetchSegment; gọi SendGetSegmentResponse và chỉ vào nhánh ghi model khi response success."
+        },
+        {
+          "path": "MagicSort_HExport/com.grandgames.magicsort_Unity_20260909_112501/UnityExport/ExportedProject/Assets/Scripts/Assembly-CSharp/Modules/Contexts/Application/ServerCommunication/Scripts/SegmentResponse.cs",
+          "line": 7,
+          "detail": "JsonProperty segment; is_ads_disabled ở dòng 10."
+        }
+      ]
+    },
+    {
+      "game": "magic",
+      "id": "MS-R02",
+      "title": "Nhãn cache global được đọc nguyên trạng",
+      "rule": "model tồn tại và !String.IsNullOrEmpty(model.Segment) → trả model.Segment; ngược lại → string.Empty.",
+      "output": "Nhãn hoặc chuỗi rỗng, không tự đổi thành non-purchaser.",
+      "limits": [
+        "Coin trong inventory không phải một nhánh điều kiện tại GetSegment.",
+        "Không lấy chuỗi rỗng làm bằng chứng người chơi chưa mua."
+      ],
+      "sources": [
+        {
+          "path": "MagicSort_HExport/com.grandgames.magicsort_Unity_20260909_112501/RecoveredNative/PseudoC/Assembly-CSharp/Modules/Contexts/Application/ServerCommunication/Scripts/SegmentService.c",
+          "line": 574,
+          "detail": "GetSegment."
+        },
+        {
+          "path": "MagicSort_HExport/com.grandgames.magicsort_Unity_20260909_112501/RecoveredNative/PseudoC/Assembly-CSharp/Modules/Contexts/Application/ServerCommunication/Scripts/SegmentService.c",
+          "line": 386,
+          "detail": "Initialize đọc model từ ISaveLoad, có _isInitialized guard."
+        },
+        {
+          "path": "MagicSort_HExport/GameDesign/facts/runtime/test_20261010/before/summary.json",
+          "line": 60,
+          "detail": "Nhãn snapshot, không chứa bằng chứng thuật toán phân loại."
+        }
+      ]
+    },
+    {
+      "game": "magic",
+      "id": "MS-R03",
+      "title": "Điểm refresh nhìn thấy, chưa chứng minh đổi nhóm ngay sau mua",
+      "rule": "Native có lời gọi FetchSegment ở StartSDKsCommand và SyncService. Sự tồn tại call site chứng minh có đường lấy lại nhãn, không đủ để kết luận mọi giao dịch đều fetch ngay.",
+      "output": "Có cơ hội cập nhật nhãn từ backend tại các đường lifecycle đã đọc.",
+      "limits": [
+        "Chưa đo thời gian backend đổi segment sau receipt.",
+        "Chưa xác minh mua SKU 2 có đưa account thành poor hay không.",
+        "Chưa xác minh event đang dở cập nhật nhãn theo global hay giữ nhãn lúc nhận event."
+      ],
+      "sources": [
+        {
+          "path": "MagicSort_HExport/com.grandgames.magicsort_Unity_20260909_112501/RecoveredNative/PseudoC/Assembly-CSharp/Modules/Contexts/Application/Common/Scripts/Commands/StartSDKsCommand.c",
+          "line": 596,
+          "detail": "FetchSegment sau TryUpdateAuthToken trong đường khởi động."
+        },
+        {
+          "path": "MagicSort_HExport/com.grandgames.magicsort_Unity_20260909_112501/RecoveredNative/PseudoC/Assembly-CSharp/Modules/Contexts/Application/ServerCommunication/Scripts/SyncService.c",
+          "line": 3368,
+          "detail": "FetchSegment trong đường đồng bộ đã đọc."
+        }
+      ]
+    },
+    {
+      "game": "magic",
+      "id": "MS-R04",
+      "title": "Treasure Drill đọc nhãn ở cache của chính event",
+      "rule": "CacheModel tồn tại và Segment không rỗng → trả segment event; ngược lại → string.Empty. Hàm không gọi SegmentService.GetSegment.",
+      "output": "Nhãn tra bảng SKU của Treasure Drill đến từ cache event.",
+      "limits": [
+        "Khác scope dữ liệu không chứng minh backend chủ động cho global/event khác nhau.",
+        "Case global whale và event poor dưới đây là mô phỏng ranh giới phạm vi, chưa thấy trên hai response thực."
+      ],
+      "sources": [
+        {
+          "path": "MagicSort_HExport/com.grandgames.magicsort_Unity_20260909_112501/RecoveredNative/PseudoC/Assembly-CSharp/Modules/Contexts/Home/Monetization/TreasureDrill/Scripts/TreasureDrillService.c",
+          "line": 2319,
+          "detail": "TreasureDrillService.GetSegment."
+        },
+        {
+          "path": "MagicSort_HExport/com.grandgames.magicsort_Unity_20260909_112501/UnityExport/ExportedProject/Assets/Scripts/Assembly-CSharp/Modules/Contexts/Home/Monetization/TreasureDrill/Scripts/TreasureDrillInfoResponse.cs",
+          "line": 20,
+          "detail": "Response có JsonProperty segment riêng."
+        }
+      ]
+    },
+    {
+      "game": "magic",
+      "id": "MS-R05",
+      "title": "Treasure Drill: bảng năm nhãn → năm SKU",
+      "rule": "dictionary.TryGetValue(eventSegment,out product) thành công → trả product; không thành công → Enumerable.First(dictionary).Value.",
+      "output": "IAPConfigModel dùng cho offer nếu các gate riêng của feature đã thỏa.",
+      "limits": [
+        "Đây là giá tham chiếu cấu hình, không phải ngưỡng doanh thu để xếp nhóm hay giá thanh toán bản địa hóa.",
+        "Không cố định fallback thành SKU 2: phụ thuộc phần tử đầu dictionary tại runtime.",
+        "Dictionary rỗng không có fallback an toàn được chứng minh trong thân hàm này.",
+        "Chưa chạy năm account đại diện năm nhóm."
+      ],
+      "sources": [
+        {
+          "path": "MagicSort_HExport/com.grandgames.magicsort_Unity_20260909_112501/RecoveredNative/PseudoC/Assembly-CSharp/Modules/Contexts/Home/Monetization/TreasureDrill/Scripts/TreasureDrillService.c",
+          "line": 4300,
+          "detail": "GetSegmentedIAPConfigModel: exact lookup và fallback First."
+        },
+        {
+          "path": "MagicSort_HExport/GameDesign/facts/runtime/test_20261010/before/CachedRemoteConfigs",
+          "line": 1,
+          "detail": "JSON một dòng; đọc theo JSONPath ghi trong từng luật. Chỉ trích các trường game cần thiết, không xuất khóa, token hay ID tài khoản.",
+          "json_path": "$.treasureDrillConfigModel.segmentedIAPModel"
+        }
+      ]
+    },
+    {
+      "game": "magic",
+      "id": "MS-R06",
+      "title": "Special Offer: backend trả package cùng nhãn",
+      "rule": "Đọc package trong response; IAPProductId được đối chiếu với danh mục IAP của config đang chọn. Client không tái tính LTV→package trong GetIAPConfigModel.",
+      "output": "SKU + phần thưởng + discount badge được backend cung cấp; package hợp lệ mới có thể vượt gate UI.",
+      "limits": [
+        "Nhãn segment có trong response không tiết lộ rule backend dùng để chọn package.",
+        "Tỷ lệ discount badge không tự chứng minh phép so giá với một gói chuẩn nào.",
+        "Chưa chạy mua thử/receipt hoặc so hai tài khoản."
+      ],
+      "sources": [
+        {
+          "path": "MagicSort_HExport/com.grandgames.magicsort_Unity_20260909_112501/UnityExport/ExportedProject/Assets/Scripts/Assembly-CSharp/Modules/Contexts/Home/Monetization/SpecialOffer/Scripts/SpecialOfferResponse.cs",
+          "line": 22,
+          "detail": "segmented_offer_package; segment ở dòng 28."
+        },
+        {
+          "path": "MagicSort_HExport/com.grandgames.magicsort_Unity_20260909_112501/UnityExport/ExportedProject/Assets/Scripts/Assembly-CSharp/Modules/Contexts/Home/Monetization/SpecialOffer/Scripts/SegmentedOfferPackage.cs",
+          "line": 10,
+          "detail": "Các trường discount, rewards và product ID."
+        },
+        {
+          "path": "MagicSort_HExport/com.grandgames.magicsort_Unity_20260909_112501/RecoveredNative/PseudoC/Assembly-CSharp/Modules/Contexts/Home/Monetization/SpecialOffer/Scripts/SpecialOfferService.c",
+          "line": 3268,
+          "detail": "GetIAPConfigModel kiểm productId không rỗng, duyệt catalog config."
+        },
+        {
+          "path": "MagicSort_HExport/com.grandgames.magicsort_Unity_20260909_112501/RecoveredNative/PseudoC/Assembly-CSharp/Modules/Contexts/Home/Monetization/SpecialOffer/Scripts/SpecialOfferService.c",
+          "line": 1766,
+          "detail": "UpdateAndCacheBackendOfferResponse là đường cache response."
+        }
+      ]
+    },
+    {
+      "game": "magic",
+      "id": "MS-R07",
+      "title": "Adaptive config có ưu tiên cao hơn regular config",
+      "rule": "activeConfig = adaptive.IsEnable ? adaptive : regular.",
+      "output": "Các gate level và enabled, cùng catalog IAP được đọc từ config đã chọn.",
+      "limits": [
+        "Tên Adaptive không cung cấp thuật toán thích nghi phía server.",
+        "Regular=false không có nghĩa SpecialOffer tổng thể disabled.",
+        "ShowFrequency/MaxShowCount mới được trích cấu hình; chưa khẳng định comparator tần suất vì thân nhánh đó không nằm trong phạm vi nghiên cứu này."
+      ],
+      "sources": [
+        {
+          "path": "MagicSort_HExport/com.grandgames.magicsort_Unity_20260909_112501/RecoveredNative/PseudoC/Assembly-CSharp/Modules/Contexts/Home/Monetization/SpecialOffer/Scripts/SpecialOfferStateService.c",
+          "line": 158,
+          "detail": "GetState: kiểm AdaptiveSpecialOfferConfigModel.IsEnable rồi chọn object config."
+        },
+        {
+          "path": "MagicSort_HExport/com.grandgames.magicsort_Unity_20260909_112501/RecoveredNative/PseudoC/Assembly-CSharp/Modules/Contexts/Home/Monetization/SpecialOffer/Scripts/SpecialOfferService.c",
+          "line": 3268,
+          "detail": "GetIAPConfigModel áp dụng cùng lựa chọn adaptive/regular."
+        },
+        {
+          "path": "MagicSort_HExport/GameDesign/facts/runtime/test_20261010/before/CachedRemoteConfigs",
+          "line": 1,
+          "detail": "JSON một dòng; đọc theo JSONPath ghi trong từng luật. Chỉ trích các trường game cần thiết, không xuất khóa, token hay ID tài khoản.",
+          "json_path": "$.specialOfferConfigModel; $.adaptiveSpecialOfferConfigModel"
+        }
+      ]
+    },
+    {
+      "game": "magic",
+      "id": "MS-R08",
+      "title": "Gate Special Offer: thứ tự các điều kiện quyết định state",
+      "rule": "CanShowSpecialOffer() chỉ trả true khi GetState()==3.",
+      "output": "Cho phép hoặc chặn UI, không gán lại nhóm thương mại.",
+      "limits": [
+        "Qua level 55 không đảm bảo có icon/popup.",
+        "StartTime không xuất hiện như một phép so độc lập trong GetState đã đọc; không thêm điều kiện start_time tùy ý.",
+        "Cờ IsClaimed có trong response schema nhưng không phải nhánh độc lập trong GetState này.",
+        "AssetsNotReady được xét trước local remainingSeconds, nên lỗi tài nguyên có thể che trạng thái hết giờ trong phép đọc state."
+      ],
+      "sources": [
+        {
+          "path": "MagicSort_HExport/com.grandgames.magicsort_Unity_20260909_112501/RecoveredNative/PseudoC/Assembly-CSharp/Modules/Contexts/Home/Monetization/SpecialOffer/Scripts/SpecialOfferStateService.c",
+          "line": 158,
+          "detail": "Thân GetState, thứ tự early-result/state assignments."
+        },
+        {
+          "path": "MagicSort_HExport/com.grandgames.magicsort_Unity_20260909_112501/RecoveredNative/PseudoC/Assembly-CSharp/Modules/Contexts/Home/Monetization/SpecialOffer/Scripts/SpecialOfferStateService.c",
+          "line": 499,
+          "detail": "CanShowSpecialOffer == 3."
+        }
+      ]
+    },
+    {
+      "game": "magic",
+      "id": "MS-R09",
+      "title": "Store chọn phần tử đầu có Rank lớn hơn rank hiện tại",
+      "rule": "Duyệt GetSpecialBundles() theo thứ tự; bỏ mọi item có Rank <= CurrentSpecialOfferRank; lấy item đầu tiên còn lại; nếu không có trả false/null.",
+      "output": "Một StoreSpecialBundleModel đủ điều kiện; không phải tự sort hay chọn rank nhỏ nhất lớn hơn current.",
+      "limits": [
+        "Không gọi hàm này là classifier LTV.",
+        "Không suy ra rank tăng bao nhiêu hoặc vào thời điểm nào chỉ từ setter.",
+        "Không khẳng định danh sách luôn được sắp xếp; hàm đã đọc không sort.",
+        "Snapshot rank1 duy nhất không đủ bằng chứng một bậc sale thứ hai sau khi mua Starter."
+      ],
+      "sources": [
+        {
+          "path": "MagicSort_HExport/com.grandgames.magicsort_Unity_20260909_112501/RecoveredNative/PseudoC/Assembly-CSharp/Modules/Contexts/Home/Store/Scripts/StoreModelService.c",
+          "line": 786,
+          "detail": "TryGetCurrentSpecialOffer; vòng lặp bỏ Rank <= current."
+        },
+        {
+          "path": "MagicSort_HExport/com.grandgames.magicsort_Unity_20260909_112501/RecoveredNative/PseudoC/Assembly-CSharp/Modules/Contexts/Home/Store/Scripts/StoreModelService.c",
+          "line": 702,
+          "detail": "SetCurrentOfferRank lưu index và đánh dấu save."
+        },
+        {
+          "path": "MagicSort_HExport/com.grandgames.magicsort_Unity_20260909_112501/RecoveredNative/PseudoC/Assembly-CSharp/Modules/Contexts/Home/Store/Scripts/StoreModelService.c",
+          "line": 744,
+          "detail": "SetMaxPurchasedBundleIndex lưu trạng thái riêng."
+        },
+        {
+          "path": "MagicSort_HExport/GameDesign/facts/runtime/test_20261010/before/CachedRemoteConfigs",
+          "line": 1,
+          "detail": "JSON một dòng; đọc theo JSONPath ghi trong từng luật. Chỉ trích các trường game cần thiết, không xuất khóa, token hay ID tài khoản.",
+          "json_path": "$.storeConfigModelV2.storeSpecialBundles"
+        }
+      ]
+    },
+    {
+      "game": "magic",
+      "id": "MS-R10",
+      "title": "Magic Streak dùng segment cho target phần thưởng, không phải sale",
+      "rule": "whale → W; hamsi/dolphin → DH; poor/non-purchaser và fallback → NPP. Collection chọn biến thể WithCollection tương ứng.",
+      "output": {
+        "total_target_20_steps": {
+          "NPP": 20705,
+          "DH": 30305,
+          "W": 39705
+        },
+        "note": "Đây là tổng yêu cầu cộng 20 mốc trong snapshot; không phải giá tiền."
+      },
+      "limits": [
+        "Không dùng chênh target làm bằng chứng trả tiền khiến level khó hơn.",
+        "Không đồng nhất nhãn event GAE với global SegmentDataModel."
+      ],
+      "sources": [
+        {
+          "path": "MagicSort_HExport/com.grandgames.magicsort_Unity_20260909_112501/RecoveredNative/PseudoC/Assembly-CSharp/Modules/Contexts/Home/MagicStreakGAE/Scripts/MagicStreakGaeService.c",
+          "line": 982,
+          "detail": "GetRewardSteps đọc segment của GAE và nhánh Collection."
+        },
+        {
+          "path": "MagicSort_HExport/GameDesign/facts/runtime/test_20261010/before/CachedRemoteConfigs",
+          "line": 1,
+          "detail": "JSON một dòng; đọc theo JSONPath ghi trong từng luật. Chỉ trích các trường game cần thiết, không xuất khóa, token hay ID tài khoản.",
+          "json_path": "$.magicStreakGaeConfigModel.rewardStepsNPP; $.magicStreakGaeConfigModel.rewardStepsDH; $.magicStreakGaeConfigModel.rewardStepsW"
+        },
+        {
+          "path": "MagicSort_HExport/GameDesign/analysis/07-user-segmentation.md",
+          "line": 1,
+          "detail": "Bảng cộng dồn và giới hạn nghiên cứu đã tác giả hóa."
+        }
+      ]
+    },
+    {
+      "game": "blockout",
+      "id": "BO-R01",
+      "title": "Nhận và lưu nhãn global",
+      "rule": "FetchSegment gọi SegmentRemoteService; khi response thành công, SegmentDataService.SetSegment lưu chuỗi. GetSegment đọc lại model. Snapshot đã quan sát có non-purchaser.",
+      "output": "",
+      "limits": "Chưa có bộ phân loại backend, ngưỡng chi tiêu, time window hoặc luật tăng/hạ nhóm.",
+      "sources": [
+        "native:Contexts/Application/ServerCommunication/Scripts/SegmentService.c:1398 (FetchSegment),1460,1550-1574 (GetSegment),1740-1755 (response/set and remote call)",
+        "native:Contexts/Application/ServerCommunication/Scripts/SegmentDataService.c:291-309 (SetSegment)",
+        "gdd:analysis/07-user-segmentation.md, cache evidence10Oct"
+      ]
+    },
+    {
+      "game": "blockout",
+      "id": "BO-R02",
+      "title": "Segment riêng của Dragon Treasure",
+      "rule": "TreasureDrillDataService lưu segment từ response vào CacheModel.Segment. GetSegment đọc cache event; thiếu/rỗng thì trả chuỗi rỗng. Hàm chọn SKU lấy nhãn từ đây, không gọi global SegmentService.",
+      "output": "",
+      "limits": "Phân biệt nơi lưu không chứng minh backend luôn phát hai nhãn khác nhau; chưa biết chính sách đổi nhãn giữa kỳ.",
+      "sources": [
+        "native:Contexts/Home/Monetization/TreasureDrill/Scripts/TreasureDrillDataService.c:3065,8807,8899-8929",
+        "native:Contexts/Home/Monetization/TreasureDrill/Scripts/TreasureDrillService.c:21540,21628-21652"
+      ]
+    },
+    {
+      "game": "blockout",
+      "id": "BO-R03",
+      "title": "Tra bảng SKU và fallback",
+      "rule": "GetSegmentedIAPConfigModel: TryGetValue(eventSegment) thành công thì lấy IAP tương ứng; thất bại dùng Enumerable.First(dictionary).Value. Năm nhãn ánh xạ sang năm productId riêng.",
+      "output": "",
+      "limits": "Fallback là phần tử đầu, không phải nhãn non-purchaser được hard-code. Chưa kiểm dictionary rỗng; không suy ra giá địa phương hoặc ngưỡng phân loại.",
+      "sources": [
+        "native:Contexts/Home/Monetization/TreasureDrill/Scripts/TreasureDrillService.c:21540,21628-21652,22683",
+        "gdd:facts/runtime/events_20261013/baseline/03-CachedRemoteConfigs JSON path treasureDrillConfigModel.segmentedIAPModel"
+      ]
+    },
+    {
+      "game": "blockout",
+      "id": "BO-R04",
+      "title": "Mapping tồn tại nhưng feature có thể tắt",
+      "rule": "Baseline 13/10: TreasureDrill isEnabled=false, firstLevelToShow=110. Fixture bật event và chuẩn bị introduction state đã hiện UI Activate 52.000 VND, các mốc còn khóa.",
+      "output": "",
+      "limits": "Level 350 và nhãn hợp lệ chưa đủ. Ảnh fixture không chứng minh backend phát event hoặc người dùng đã mua quyền nhận thưởng.",
+      "sources": [
+        "gdd:facts/runtime/events_20261013/baseline/03-CachedRemoteConfigs JSON path treasureDrillConfigModel",
+        "gdd:facts/report_20261013/event_capture_manifest.json shots BO-E05,BO-E06,BO-E08",
+        "gdd:analysis/16-event-screenshot-lab.md"
+      ]
+    },
+    {
+      "game": "blockout",
+      "id": "BO-R05",
+      "title": "Special Offer nhận gói đã chọn",
+      "rule": "Schema SpecialOfferEventInfo chứa segment, segmented_offer_package, event_id, thời gian và ui_type. Package mang sản phẩm/phần thưởng. Baseline adaptiveSpecialOfferConfigModel tắt; level đầu 55, frequency 2, maxShowCount 10. Catalog có 10 SKU: special1/3/5/7/10/14/20/28/50/60.",
+      "output": "",
+      "limits": "Danh mục sản phẩm không phải bảng nhóm → SKU. Hàm GetConfig của Block Out phục hồi timeout: không áp precedence regular/adaptive của Magic Sort sang game này.",
+      "sources": [
+        "schema:Contexts/Home/Monetization/SpecialOffer/Scripts/SpecialOfferEventInfo.cs:7-29",
+        "schema:Contexts/Home/Monetization/SpecialOffer/Scripts/SegmentedOfferPackage.cs",
+        "gdd:facts/runtime/events_20261013/baseline/03-CachedRemoteConfigs JSON path adaptiveSpecialOfferConfigModel",
+        "gdd:facts/runtime/events_20261013/baseline/01-frc_1_821387140565_android_1564e7cb9d7b2b78d7715c_firebase_activate.json configs_key.AdaptiveSpecialOfferConfigModel"
+      ]
+    },
+    {
+      "game": "blockout",
+      "id": "BO-R06",
+      "title": "Asset, state và tần suất chen trước Shop",
+      "rule": "CanShowSpecialOffer yêu cầu state 3. Bundle chưa tải HOẶC chưa load thì NeedToDownloadAssets=true và state 8. Nhánh BeforeStore còn kiểm count % frequency == 0 và count < maxShowCount × frequency.",
+      "output": "",
+      "limits": "State kiểm cả enabled, level, instance, mua/kết thúc, thời gian và product. Chưa suy số lần impression chỉ từ counter; thời điểm tăng counter cần trace riêng.",
+      "sources": [
+        "native:Contexts/Home/Monetization/SpecialOffer/Scripts/SpecialOfferStateService.c:127,219-291,1195",
+        "native:Contexts/Home/Monetization/SpecialOffer/Scripts/SpecialOfferService.c:2010-2022,3862-3912,4770-4860,5108"
+      ]
+    },
+    {
+      "game": "blockout",
+      "id": "BO-R07",
+      "title": "Voyage Deal: nhu cầu tại lúc thua",
+      "rule": "GetContainerState yêu cầu GetState()==1, coin < MaxCoinAmountToShow và internetReachability != 0. Baseline maxCoin=2000, firstLevel=59, showDuration=1800 giây, feature tắt. Popup còn cần package và IAPConfig hợp lệ.",
+      "output": "",
+      "limits": "Reachability khác kết nối backend thành công. Hạ coin không tự tạo package, không đổi nhãn thương mại và không chứng minh giá gói phụ thuộc số dư.",
+      "sources": [
+        "native:Contexts/Home/Monetization/PawTouchOffer/Scripts/PawTouchOfferStateService.c:313-484,487-531,556-570",
+        "native:Contexts/GamePlay/UI/StuckAreYouSurePopUpNs/Scripts/StuckAreYouSurePopup.c:10330-10425",
+        "gdd:facts/runtime/events_20261013/baseline/03-CachedRemoteConfigs JSON path pawTouchOfferConfig"
+      ]
+    },
+    {
+      "game": "blockout",
+      "id": "BO-R08",
+      "title": "Store chọn theo rank và thứ tự danh sách",
+      "rule": "TryGetCurrentSpecialOffer chọn phần tử đầu có Rank > CurrentSpecialOfferRank, không sort, không bắt buộc rank=current+1. Default và cache 13/10 chỉ có rank 1: block.starterbundle2, dollarEquivalent 1.99.",
+      "output": "",
+      "limits": "Catalog một phần tử không chứng minh chuỗi nâng giá sau mỗi lần mua. Chưa chạy transition mua Starter → cập nhật rank trong chuyên đề.",
+      "sources": [
+        "native:Contexts/Home/Store/Scripts/StoreModelService.c:7761-7778,8230-8318",
+        "native:Contexts/Home/Store/Scripts/StoreSpecialBundleModel.c get_Rank",
+        "gdd:facts/runtime/events_20261013/baseline/03-CachedRemoteConfigs JSON path storeConfigModelV2.storeSpecialBundles",
+        "defaultconfigs/StoreConfigModelV2.json StoreSpecialBundles"
+      ]
+    },
+    {
+      "game": "blockout",
+      "id": "BO-R09",
+      "title": "Không trộn nhóm level, thưởng và giá cứu màn",
+      "rule": "Global non-purchaser cùng tồn tại với userLevelSegment=default. Star Blaze có hai đường quà theo Collection, cùng 21.811 sao/25 mốc. Backend Play On có các bậc 900/1900/2900 coin; hai mức đầu đã thấy trong hồ sơ 10/10.",
+      "output": "",
+      "limits": "Không suy rằng whale làm tăng target Star Blaze; không dùng giá Play On tăng theo lượt cứu để kết luận vừa đổi nhóm chi tiêu.",
+      "sources": [
+        "gdd:analysis/07-user-segmentation.md",
+        "gdd:facts/runtime/test_20261010/before/GrandCachedRemoteLevelConfigs",
+        "gdd:facts/runtime/test_20261010/before/GrandCachedPlayOnConfig"
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "id": "RM-C01",
+      "title": "Payer bit thay đổi khi có giao dịch nhưng không tự suy ra spend tier",
+      "type": "STATIC_EXPECTED",
+      "setup": "Giữ mọi bit khác; so sánh UserData bit0=0 và bit0=1. Mô phỏng gọi UpdateUserData với một PurchaseProduct hợp lệ.",
+      "steps": [
+        "Đọc IsPaidUser trước cập nhật.",
+        "Áp dụng SetBit(UserData,0,true).",
+        "Đọc lại IsPaidUser."
+      ],
+      "expected": "0→false;1→true. Cờ này không chứa khái niệm Whale và không thay thế segment backend.",
+      "observed_runtime": "Chưa chạy case trên emulator; không thực hiện giao dịch.",
+      "evidence_ids": [
+        "RM-R01"
+      ],
+      "limits": "Không gọi bit mutation là xác minh receipt hoặc mua thành công trên server.",
+      "game": "royal",
+      "status_public": "KỲ VỌNG TỪ MÃ — CHƯA CHẠY RUNTIME",
+      "badge": "static",
+      "action": [
+        "Đọc IsPaidUser trước cập nhật.",
+        "Áp dụng SetBit(UserData,0,true).",
+        "Đọc lại IsPaidUser."
+      ],
+      "limit": "Không gọi bit mutation là xác minh receipt hoặc mua thành công trên server.",
+      "refs": [
+        "RM-R01"
+      ]
+    },
+    {
+      "id": "RM-C02",
+      "title": "Version bằng/0/khác — kể cả khác nhưng nhỏ hơn",
+      "type": "STATIC_EXPECTED",
+      "setup": "Local UserSegmentVersion=10, segment=3; response muốn newSegment=8.",
+      "cases": [
+        {
+          "response_version": 0,
+          "expected": "Không cập nhật"
+        },
+        {
+          "response_version": 10,
+          "expected": "Không cập nhật"
+        },
+        {
+          "response_version": 11,
+          "expected": "Cập nhật segment 8/version 11"
+        },
+        {
+          "response_version": 9,
+          "expected": "Cập nhật segment 8/version 9 tại hàm này"
+        }
+      ],
+      "observed_runtime": "Chưa gửi payload hoặc sửa dữ liệu tài khoản; kết quả là đọc trực tiếp guard.",
+      "evidence_ids": [
+        "RM-R03"
+      ],
+      "limits": "Có thể có kiểm tra upstream khác; case 9 chỉ nói thân hàm không có phép lớn hơn.",
+      "game": "royal",
+      "status_public": "KỲ VỌNG TỪ MÃ — CHƯA CHẠY RUNTIME",
+      "badge": "static",
+      "action": "Đối chiếu nhánh native với các đầu vào trong bảng.",
+      "limit": "Có thể có kiểm tra upstream khác; case 9 chỉ nói thân hàm không có phép lớn hơn.",
+      "refs": [
+        "RM-R03"
+      ]
+    },
+    {
+      "id": "RM-C03",
+      "title": "Ranh giới Ladder 5/6/7/8",
+      "type": "STATIC_EXPECTED_WITH_RESOURCE_CONTENT",
+      "setup": "Giữ cùng theme biến thể 3, cùng eventConfig server và cùng trạng thái event; chỉ đổi offerSegment.",
+      "cases": [
+        {
+          "segment": 5,
+          "expected": "Giữ eventConfig server, không thể suy ra bậc trả đầu nếu chưa biết payload."
+        },
+        {
+          "segment": 6,
+          "expected": "Tải segmentedladder_offer_3_20; step 4 Super p20, snapshot giá 599.000₫."
+        },
+        {
+          "segment": 7,
+          "expected": "Cùng file_3_20 như segment 6; không tăng tiếp một tier."
+        },
+        {
+          "segment": 8,
+          "expected": "Tải_3_50; step 4 Ultra p50, snapshot giá 1.499.000₫."
+        }
+      ],
+      "observed_runtime": "Không có cặp ảnh runtime5→6→7→8 mới; dùng native + hai resource thật và giá snapshot.",
+      "evidence_ids": [
+        "RM-R05",
+        "RM-R06"
+      ],
+      "limits": "Themevariant 3 là điều kiện setup minh hoạ. Nhãn_20/_50 không phải ngưỡng LTV20/50 USD.",
+      "game": "royal",
+      "status_public": "KỲ VỌNG TỪ MÃ — CHƯA CHẠY RUNTIME",
+      "badge": "static",
+      "action": "Đối chiếu nhánh native với các đầu vào trong bảng.",
+      "limit": "Themevariant 3 là điều kiện setup minh hoạ. Nhãn_20/_50 không phải ngưỡng LTV20/50 USD.",
+      "refs": [
+        "RM-R05",
+        "RM-R06"
+      ]
+    },
+    {
+      "id": "RM-C04",
+      "title": "No-Ads ở 4999/5000/5001",
+      "type": "STATIC_EXPECTED",
+      "setup": "Danh sách Shop có một ô isNoAdsPackage; cung cấp maxBoughtCoins lần lượt 4999, 5000, 5001.",
+      "cases": [
+        {
+          "maxBoughtCoins": 4999,
+          "expected": "Không chạy override; giữ config No-Ads."
+        },
+        {
+          "maxBoughtCoins": 5000,
+          "expected": "Thay thành noAdsBundleConfig."
+        },
+        {
+          "maxBoughtCoins": 5001,
+          "expected": "Thay thành noAdsBundleConfig."
+        }
+      ],
+      "observed_runtime": "Chưa tạo lịch sử mua tương ứng, chưa so ảnh trước/sau.",
+      "evidence_ids": [
+        "RM-R07"
+      ],
+      "limits": "Nếu chỉ tăng coin trong ví lên 5000 thì case này chưa được kích hoạt vì input khác.",
+      "game": "royal",
+      "status_public": "KỲ VỌNG TỪ MÃ — CHƯA CHẠY RUNTIME",
+      "badge": "static",
+      "action": "Đối chiếu nhánh native với các đầu vào trong bảng.",
+      "limit": "Nếu chỉ tăng coin trong ví lên 5000 thì case này chưa được kích hoạt vì input khác.",
+      "refs": [
+        "RM-R07"
+      ]
+    },
+    {
+      "id": "RM-C05",
+      "title": "Mua gói nhỏ nhiều lần khác mua gói lớn",
+      "type": "STATIC_EXPECTED",
+      "setup": "Highest bundle ID hiện 20; so sánh một bundle ID 10, bundle ID 50 và một pass.",
+      "cases": [
+        {
+          "product": "bundle.numberId10",
+          "expected": "Highest bundle vẫn 20; payer true."
+        },
+        {
+          "product": "bundle.numberId50",
+          "expected": "Highest bundle thành 50; payer true."
+        },
+        {
+          "product": "pass",
+          "expected": "Payer true nhưng không đưa pass vào highest single qua nhánh đang đọc."
+        }
+      ],
+      "observed_runtime": "Mô phỏng biến đầu vào; không có giao dịch thật.",
+      "evidence_ids": [
+        "RM-R02"
+      ],
+      "limits": "Số ID dùng làm fixture; không tương đương số tiền hay cứ mua hai lần 10 là thành 20.",
+      "game": "royal",
+      "status_public": "KỲ VỌNG TỪ MÃ — CHƯA CHẠY RUNTIME",
+      "badge": "static",
+      "action": "Đối chiếu nhánh native với các đầu vào trong bảng.",
+      "limit": "Số ID dùng làm fixture; không tương đương số tiền hay cứ mua hai lần 10 là thành 20.",
+      "refs": [
+        "RM-R02"
+      ]
+    },
+    {
+      "id": "RM-C06",
+      "title": "Thay segment không tự đổi Shop thành IncreasedPrice",
+      "type": "STATIC_EXPECTED",
+      "setup": "Gọi DecidePricingStrategy trong snapshot đã phân tích với bất kỳ trạng thái segment giả định 1/6/8.",
+      "expected": "Đường hàm này vẫn cấp phát DefaultPricingStrategy. Segment khác vẫn có thể đổi Ladder/DynamicOffer qua các hàm riêng.",
+      "observed_runtime": "Không đổi user segment trên máy; kiểm tra thân hàm.",
+      "evidence_ids": [
+        "RM-R08"
+      ],
+      "limits": "Không suy ra mọi gói sale luôn cùng giá hoặc server không cá nhân hoá.",
+      "game": "royal",
+      "status_public": "KỲ VỌNG TỪ MÃ — CHƯA CHẠY RUNTIME",
+      "badge": "static",
+      "action": "Đối chiếu nhánh native với các đầu vào trong bảng.",
+      "limit": "Không suy ra mọi gói sale luôn cùng giá hoặc server không cá nhân hoá.",
+      "refs": [
+        "RM-R08"
+      ]
+    },
+    {
+      "id": "RM-C07",
+      "title": "DynamicOffer alternative trống và phân biệt currency",
+      "type": "STATIC_EXPECTED_WITH_SYNTHETIC_TABLE",
+      "setup": "Fixture bảng: segments cósegment 2 → Gói A; alternativeSegments rỗng; coinSegments cósegment 2 → Gói C. Đây là nhãn minh hoạ, không phải payload campaign thật.",
+      "cases": [
+        {
+          "currency": 1,
+          "alternative": true,
+          "segment": 2,
+          "expected": "Fallback sang segments, tìm Gói A."
+        },
+        {
+          "currency": 0,
+          "alternative": true,
+          "segment": 2,
+          "expected": "Chọn coinSegments trước; tìm Gói C."
+        },
+        {
+          "currency": 1,
+          "alternative": false,
+          "segment": 2,
+          "expected": "Chọn segments; tìm Gói A."
+        }
+      ],
+      "observed_runtime": "Chưa tải campaign hoặc chụp popup cho fixture này.",
+      "evidence_ids": [
+        "RM-R09"
+      ],
+      "limits": "Không mô phỏng hành vi missing-match vì phần native recovery có cảnh báo.",
+      "game": "royal",
+      "status_public": "KỲ VỌNG TỪ MÃ — CHƯA CHẠY RUNTIME",
+      "badge": "static",
+      "action": "Đối chiếu nhánh native với các đầu vào trong bảng.",
+      "limit": "Không mô phỏng hành vi missing-match vì phần native recovery có cảnh báo.",
+      "refs": [
+        "RM-R09"
+      ]
+    },
+    {
+      "id": "RM-C08",
+      "title": "Legacy Special Offer equality là một ranh giới cần sửa",
+      "type": "STATIC_EXPECTED_WITH_SYNTHETIC_STEPS",
+      "setup": "Fixture mảng đã sắp theo thứ tự [{s:1,p:1},{s:2,p:10},{s:3,p:20},{s:4,p:50}], caller step 0.",
+      "cases": [
+        {
+          "highestID": 19,
+          "expected": "Scan từ cuối → step 2, p10."
+        },
+        {
+          "highestID": 20,
+          "expected": "Trả step 3, p20, không phải step 4, p50."
+        },
+        {
+          "highestID": 0,
+          "expected": "Không có p<=0 → fallback step 1."
+        }
+      ],
+      "observed_runtime": "Chưa ép legacy path trên emulator. Fixture chỉ minh họa predicate native.",
+      "evidence_ids": [
+        "RM-R10"
+      ],
+      "limits": "Không lấy đây làm bảng config thật. Sửa nhận định cũ 'luôn bậc lớn hơn' thành quy tắc native cụ thể.",
+      "game": "royal",
+      "status_public": "KỲ VỌNG TỪ MÃ — CHƯA CHẠY RUNTIME",
+      "badge": "static",
+      "action": "Đối chiếu nhánh native với các đầu vào trong bảng.",
+      "limit": "Không lấy đây làm bảng config thật. Sửa nhận định cũ 'luôn bậc lớn hơn' thành quy tắc native cụ thể.",
+      "refs": [
+        "RM-R10"
+      ]
+    },
+    {
+      "id": "MS-C01",
+      "status": "static / simulated / not-runtime",
+      "title": "Nhãn global thiếu hoặc rỗng",
+      "setup": "Model=null hoặc model.Segment=''; sau đó model.Segment='whale'.",
+      "action": "Theo nhánh GetSegment trong native.",
+      "expected": "Hai trạng thái đầu trả chuỗi rỗng; trạng thái cuối trả whale. Không tự phân loại non-purchaser.",
+      "rules": [
+        "MS-R02"
+      ],
+      "limit": "Không inject prefs; không mở game.",
+      "game": "magic",
+      "status_public": "KỲ VỌNG TỪ MÃ — CHƯA CHẠY RUNTIME",
+      "badge": "static",
+      "refs": [
+        "MS-R02"
+      ]
+    },
+    {
+      "id": "MS-C02",
+      "status": "static / simulated / not-runtime",
+      "title": "Cùng global, khác nhãn Drill",
+      "setup": "Mô phỏng global='whale', Drill.CacheModel.Segment='poor'; config giữ snapshot 10/10.",
+      "action": "Gọi logic TreasureDrill.GetSegment → GetSegmentedIAPConfigModel trên giấy.",
+      "expected": "Chọn sort.treasuredrill5 theo poor của event, không chọn sort.treasuredrill25 theo global.",
+      "rules": [
+        "MS-R04",
+        "MS-R05"
+      ],
+      "limit": "Chưa quan sát cặp response bất đồng nhãn ở runtime; chỉ chứng minh scope lookup.",
+      "game": "magic",
+      "status_public": "KỲ VỌNG TỪ MÃ — CHƯA CHẠY RUNTIME",
+      "badge": "static",
+      "refs": [
+        "MS-R04",
+        "MS-R05"
+      ]
+    },
+    {
+      "id": "MS-C03",
+      "status": "static / simulated / not-runtime",
+      "title": "Nhãn non-purchaser → poor đổi gói",
+      "setup": "Hai input event segment khác nhau; các gate đủ và danh mục snapshot cố định.",
+      "action": "Lookup năm nhãn trong dictionary.",
+      "expected": "non-purchaser→SKU2; poor→SKU5; hamsi→SKU10; dolphin→SKU15; whale→SKU25.",
+      "rules": [
+        "MS-R05"
+      ],
+      "limit": "Không chứng minh mua 2 USD làm đổi thành poor; không phải năm tài khoản đã test.",
+      "game": "magic",
+      "status_public": "KỲ VỌNG TỪ MÃ — CHƯA CHẠY RUNTIME",
+      "badge": "static",
+      "refs": [
+        "MS-R05"
+      ]
+    },
+    {
+      "id": "MS-C04",
+      "status": "static / simulated / not-runtime",
+      "title": "Segment mới hoặc rỗng dùng fallback phụ thuộc dictionary",
+      "setup": "event segment='new-segment' hoặc ''; dictionary không có khóa đó nhưng có phần tử.",
+      "action": "TryGetValue=false; theo nhánh First().Value.",
+      "expected": "Nhận giá trị phần tử đầu dictionary. Thay thứ tự dictionary có thể đổi gói fallback.",
+      "rules": [
+        "MS-R05"
+      ],
+      "limit": "Không cam kết SKU2 trong mọi build; dictionary rỗng cần test riêng vì thân hàm không có nhánh bảo vệ đã thấy.",
+      "game": "magic",
+      "status_public": "KỲ VỌNG TỪ MÃ — CHƯA CHẠY RUNTIME",
+      "badge": "static",
+      "refs": [
+        "MS-R05"
+      ]
+    },
+    {
+      "id": "MS-C05",
+      "status": "static / simulated / not-runtime",
+      "title": "Adaptive bật, regular tắt, level54/55",
+      "setup": "Dùng flags snapshot: adaptive=true,regular=false,active threshold55. Giả định response hợp lệ, chưa mua/chưa finished,asset sẵn sàng,remainingSeconds=100,SKU có trong catalog.",
+      "action": "Theo GetState với level54 rồi55.",
+      "expected": "Level54→ProgressNotEnough(1); level55→Enable(3). Regular=false không chặn vì adaptive là config được chọn.",
+      "rules": [
+        "MS-R07",
+        "MS-R08"
+      ],
+      "limit": "Nếu bỏ một giả định về response/asset thì level55 có thể vẫn không show. Đây không phải case runtime mới.",
+      "game": "magic",
+      "status_public": "KỲ VỌNG TỪ MÃ — CHƯA CHẠY RUNTIME",
+      "badge": "static",
+      "refs": [
+        "MS-R07",
+        "MS-R08"
+      ]
+    },
+    {
+      "id": "MS-C06",
+      "status": "static / simulated / not-runtime",
+      "title": "Thứ tự gate: đã mua; asset; hết thời gian",
+      "setup": "Level đủ và response có. A: purchased=true đồng thời finished=true. B: purchased=false,finished=false,assets missing,remainingSeconds=0. C: như B nhưng assets ready. D: remainingSeconds=1,SKU hợp lệ.",
+      "action": "Theo thứ tự GetState.",
+      "expected": "A→Purchased6; B→AssetsNotReady8; C→LocalTimeIsUp4; D→Enable3 nếu tất cả gate khác đạt.",
+      "rules": [
+        "MS-R08"
+      ],
+      "limit": "Giá trị trả về tính từ native cũ, không khẳng định UI mới chính xác cùng thứ tự.",
+      "game": "magic",
+      "status_public": "KỲ VỌNG TỪ MÃ — CHƯA CHẠY RUNTIME",
+      "badge": "static",
+      "refs": [
+        "MS-R08"
+      ]
+    },
+    {
+      "id": "MS-C07",
+      "status": "static / simulated / not-runtime",
+      "title": "Ranh giới Store rank0/rank1 và thứ tự danh sách",
+      "setup": "A: snapshot chỉ rank1 Starter, current0. B: snapshot này,current1. C: danh sách giả định [rank3,rank2],current1.",
+      "action": "Duyệt theo TryGetCurrentSpecialOffer.",
+      "expected": "A chọn Starter; B không có special bundle đủ điều kiện; C chọn rank3 vì là phần tử đầu >1, không tự chọn rank2.",
+      "rules": [
+        "MS-R09"
+      ],
+      "limit": "C là config giả định dùng giải thích tính phụ thuộc thứ tự; không nói game đang có rank2/rank3.",
+      "game": "magic",
+      "status_public": "KỲ VỌNG TỪ MÃ — CHƯA CHẠY RUNTIME",
+      "badge": "static",
+      "refs": [
+        "MS-R09"
+      ]
+    },
+    {
+      "id": "MS-C08",
+      "status": "not-runtime / proposed validation",
+      "title": "Mua thành công có đổi segment ngay không?",
+      "setup": "Cần account test và giao dịch sandbox hợp lệ; log nhãn global/event trước mua.",
+      "action": "Ghi nhãn sau receipt, sau sync, sau khởi động lại và khi event mới đến; ghi productId,config version,time,source of label.",
+      "expected": "Chưa đặt PASS/FAIL cho ngưỡng nhãn: mục đích đo timing và scope. Native chỉ xác nhận có call sites refresh.",
+      "rules": [
+        "MS-R01",
+        "MS-R03",
+        "MS-R04"
+      ],
+      "limit": "Nghiên cứu không thực hiện mua và không có công thức backend để kỳ vọng một nhãn cụ thể.",
+      "game": "magic",
+      "status_public": "ĐỀ XUẤT — CHƯA CHẠY",
+      "badge": "unknown",
+      "refs": [
+        "MS-R01",
+        "MS-R03",
+        "MS-R04"
+      ]
+    },
+    {
+      "game": "blockout",
+      "id": "BO-SEG-01",
+      "title": "Cùng level, khác nhãn event Dragon Treasure",
+      "setup": "Hai user giả định level 350; event hợp lệ đã bật, cùng thời hạn/config; event segment lần lượt non-purchaser và whale.",
+      "action": "Tra GetSegmentedIAPConfigModel trước khi dựng popup.",
+      "expected": "Chọn block.dragontreasure2 và block.dragontreasure25; dollarEquivalent 2 và 25.",
+      "limit": "Chưa so hai tài khoản thật; chưa biết ngưỡng tạo nhãn, giá VNĐ của cả hai, giá trị quà thực tế hoặc conversion.",
+      "refs": [
+        "BO-R02",
+        "BO-R03"
+      ],
+      "badge": "static",
+      "status_public": "KỲ VỌNG TỪ MÃ — CHƯA CHẠY RUNTIME"
+    },
+    {
+      "game": "blockout",
+      "id": "BO-SEG-02",
+      "title": "Global đổi nhưng nhãn event cũ còn giữ",
+      "setup": "Global giả định whale; CacheModel.Segment của Dragon Treasure vẫn non-purchaser.",
+      "action": "Tra SKU trước khi có dữ liệu event thay thế.",
+      "expected": "Hàm client chọn block.dragontreasure2 theo event cache. Đổi global không trực tiếp đổi đầu vào này.",
+      "limit": "Chưa biết backend có duy trì trạng thái bất đồng này hay refresh giữa kỳ; đây là case cô lập scope.",
+      "refs": [
+        "BO-R02",
+        "BO-R03"
+      ],
+      "badge": "static",
+      "status_public": "KỲ VỌNG TỪ MÃ — CHƯA CHẠY RUNTIME"
+    },
+    {
+      "game": "blockout",
+      "id": "BO-SEG-03",
+      "title": "Segment lạ hoặc thiếu khóa trong bảng",
+      "setup": "Event segment là new-segment hoặc chuỗi rỗng; dictionary sản phẩm không rỗng nhưng không có khóa tương ứng.",
+      "action": "Theo nhánh TryGetValue thất bại.",
+      "expected": "Lấy Value của phần tử đầu dictionary. JSON hiện có non-purchaser ở đầu, nhưng code không chỉ định khóa này làm fallback.",
+      "limit": "Chưa chạy runtime; dictionary rỗng hoặc thứ tự khác cần kiểm riêng.",
+      "refs": [
+        "BO-R03"
+      ],
+      "badge": "static",
+      "status_public": "KỲ VỌNG TỪ MÃ — CHƯA CHẠY RUNTIME"
+    },
+    {
+      "game": "blockout",
+      "id": "BO-SEG-04",
+      "title": "Level đủ nhưng event tắt; fixture mới dựng được UI",
+      "setup": "Baseline 13/10: feature tắt, firstLevelToShow 110. Fixture chuẩn bị event/introduction và trạng thái chưa kích hoạt.",
+      "action": "Mở Dragon Treasure trong phiên fixture đã lưu hồ sơ.",
+      "expected": "UI hiện Activate 52.000 VND và các mốc còn khóa; tiến độ gán trước không đồng nghĩa có quyền nhận quà trả phí.",
+      "limit": "Không chứng minh audience backend hay mua thành công. Không áp trạng thái baseline thành lịch live hiện tại.",
+      "refs": [
+        "BO-R04"
+      ],
+      "badge": "fixture",
+      "status_public": "HỒ SƠ FIXTURE 13/10 — KHÔNG PHẢI TARGETING LIVE"
+    },
+    {
+      "game": "blockout",
+      "id": "BO-SEG-05",
+      "title": "Voyage Deal xuất hiện sau bước đóng Out Of Time",
+      "setup": "Fixture 13/10: coin 1.500; chuẩn bị fallback package, cô lập truy cập backend; timer level 350 tạm rút từ 60 xuống 5 giây.",
+      "action": "Di chuyển block → hết giờ → Out Of Time → bấm X → Continue?.",
+      "expected": "Continue? có Voyage Deal: 100 coin + 15 phút mạng, giá 26.000 VND, timer gần 30 phút.",
+      "limit": "Không mua. 0% OFF thuộc fixture; 5 giây không phải thời lượng level thật. Reachability vẫn có thể khác 0 dù backend bị cô lập.",
+      "refs": [
+        "BO-R07"
+      ],
+      "badge": "fixture",
+      "status_public": "HỒ SƠ FIXTURE 13/10 — KHÔNG PHẢI TARGETING LIVE"
+    },
+    {
+      "game": "blockout",
+      "id": "BO-SEG-06",
+      "title": "Biên coin 1.999 / 2.000 / 2.001",
+      "setup": "Giữ mọi gate khác hợp lệ: GetState()==1, package/IAP hợp lệ, reachability khác 0, đúng popup.",
+      "action": "Chỉ thay số dư rồi xét GetContainerState.",
+      "expected": "1.999 qua gate số dư; 2.000 và 2.001 bị chặn vì comparator là coin < 2.000.",
+      "limit": "Đây là tính từ mã, chưa test ba số dư trên máy; qua gate số dư không tự bảo đảm package hoặc giao dịch.",
+      "refs": [
+        "BO-R07"
+      ],
+      "badge": "static",
+      "status_public": "KỲ VỌNG TỪ MÃ — CHƯA CHẠY RUNTIME"
+    },
+    {
+      "game": "blockout",
+      "id": "BO-SEG-07",
+      "title": "Có event Special Offer nhưng tài nguyên chưa sẵn sàng",
+      "setup": "Fixture có event/package; bundle giao diện yêu cầu chưa được bảo đảm tải và load.",
+      "action": "Thử mở luồng Special Offer trong hồ sơ 13/10; đối chiếu NeedToDownloadAssets.",
+      "expected": "Phiên fixture không mở được popup. Trong native, chỉ cần bundle chưa tải HOẶC chưa load thì asset predicate chặn và state 8.",
+      "limit": "Ảnh âm không tự đo state hoặc cô lập asset là nguyên nhân duy nhất; không có ảnh nội dung sale đã mở.",
+      "refs": [
+        "BO-R05",
+        "BO-R06"
+      ],
+      "badge": "fixture",
+      "status_public": "HỒ SƠ FIXTURE 13/10 — KHÔNG PHẢI TARGETING LIVE"
+    },
+    {
+      "game": "blockout",
+      "id": "BO-SEG-08",
+      "title": "Store hết gói hợp lệ sau rank 1",
+      "setup": "Catalog khảo sát chỉ có Starter rank 1, block.starterbundle2.",
+      "action": "So CurrentSpecialOfferRank=0 và =1.",
+      "expected": "Rank 0 chọn Starter; rank 1 không còn special bundle thỏa Rank > current.",
+      "limit": "Không có bậc giá thứ hai trong catalog này. Chưa kiểm transition mua thật hoặc catalog khác.",
+      "refs": [
+        "BO-R08"
+      ],
+      "badge": "static",
+      "status_public": "KỲ VỌNG TỪ MÃ — CHƯA CHẠY RUNTIME"
+    },
+    {
+      "game": "blockout",
+      "id": "BO-SEG-09",
+      "title": "BeforeStore: count 18 / 19 / 20",
+      "setup": "Giả định CanShow và các gate khác đạt; frequency=2, maxShowCount=10.",
+      "action": "Xét divisibility và count < 20.",
+      "expected": "18 qua; 19 trượt phép chia hết; 20 trượt cap. Count 0 cũng thỏa toán học tại hàm.",
+      "limit": "Chưa trace thứ tự tăng counter, nên không diễn giải count 0 thành impression đầu hay maxShowCount thành đúng 10 popup đã thấy.",
+      "refs": [
+        "BO-R06"
+      ],
+      "badge": "static",
+      "status_public": "KỲ VỌNG TỪ MÃ — CHƯA CHẠY RUNTIME"
+    },
+    {
+      "game": "cross",
+      "id": "X-C01",
+      "title": "Cùng tên whale không đồng nghĩa cùng tiêu chí",
+      "setup": "An có nhãn whale ở Magic Sort; Bình có whale ở Block Out.",
+      "action": "So nhãn, SKU và định nghĩa đầu vào.",
+      "expected": "Có thể đối chiếu mapping SKU25 trong Drill; không thể suy hai người đã chi cùng mức tiền.",
+      "limit": "Chưa có classifier backend của cả hai game.",
+      "refs": [
+        "MS-R05",
+        "BO-R03"
+      ],
+      "badge": "unknown",
+      "status_public": "VÍ DỤ PHƯƠNG PHÁP — KHÔNG PHẢI THỬ NGHIỆM"
+    },
+    {
+      "game": "cross",
+      "id": "X-C02",
+      "title": "Số dư cao không thay thế lịch sử mua",
+      "setup": "Một user được chuẩn bị nhiều coin local nhưng nhãn cache vẫn non-purchaser; một user khác có payer flag trong Royal Match.",
+      "action": "So đúng field mà từng gate đọc.",
+      "expected": "Coin có thể làm trượt Voyage wallet gate; không tự chứng minh đổi segment hoặc highest purchased package.",
+      "limit": "Không dùng inventory đã chỉnh để suy sức chi hoặc giá trị vòng đời thực.",
+      "refs": [
+        "BO-R07",
+        "RM-R01",
+        "RM-R02"
+      ],
+      "badge": "unknown",
+      "status_public": "VÍ DỤ PHƯƠNG PHÁP — KHÔNG PHẢI THỬ NGHIỆM"
+    },
+    {
+      "game": "cross",
+      "id": "X-C03",
+      "title": "Hai giá khác nhau: kiểm SKU trước khi kết luận phân biệt giá",
+      "setup": "Hai ảnh cùng tên event nhưng khác giá; chưa biết productId/config/locale.",
+      "action": "Thu productId, quà, event segment, thời hạn và store metadata trước khi so.",
+      "expected": "Nếu khác SKU thì xác nhận chọn sản phẩm khác; nếu cùng SKU vẫn cần kiểm store/locale/thời điểm. Chưa đủ dữ liệu để quy nguyên nhân cho segment.",
+      "limit": "Case phương pháp; không phải một cặp ảnh đã chạy.",
+      "refs": [
+        "MS-R05",
+        "BO-R03",
+        "RM-R05"
+      ],
+      "badge": "unknown",
+      "status_public": "VÍ DỤ PHƯƠNG PHÁP — KHÔNG PHẢI THỬ NGHIỆM"
+    }
+  ],
+  "caution": "Case tĩnh không phải test runtime. Các bước gán nhãn backend chưa được khôi phục."
+}
