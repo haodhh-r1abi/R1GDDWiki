@@ -48,6 +48,15 @@
    "note": "Cập nhật 14/10/2026: Gallery 20 mục phân tích, 56 PNG LDPlayer, 386 sprite cá; case và bộ mẫu dev/art."
   },
   {
+   "id": "monopolygo",
+   "name": "Monopoly GO!",
+   "url": "https://r1-gdd-wiki.pages.dev/monopolygo/",
+   "icon": "assets/img/monopolygo.png",
+   "studio": "Scopely",
+   "genre": "Dice board + collect",
+   "note": "Cập nhật 18/10/2026: 6 bài phân tích + playtest live v1.79.1 (52 ảnh), taxonomy 53.918 bundle, logic phân tệp & sale, số kinh tế đo thật ở board 1."
+  },
+  {
    "id": "glow",
    "name": "Glow Fashion Idol",
    "url": "https://haodhh-r1abi.github.io/GlowFashionIdolWiki/",
