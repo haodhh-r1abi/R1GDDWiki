@@ -54,7 +54,7 @@
    "icon": "assets/img/monopolygo.png",
    "studio": "Scopely",
    "genre": "Dice board + collect",
-   "note": "Cập nhật 18/10/2026: 6 bài phân tích + playtest live v1.79.1 (52 ảnh), taxonomy 53.918 bundle, logic phân tệp & sale, số kinh tế đo thật ở board 1."
+   "note": "Cập nhật 18/10/2026: 69 trang tính năng dữ liệu (class, bundle, config, ảnh), 7 danh mục, 6 bài phân tích, 9 phụ lục (bộ bài Chance, config xúc xắc…), 52 ảnh playtest v1.79.1."
   },
   {
    "id": "glow",
