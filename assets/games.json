@@ -30,6 +30,15 @@
    "note": "Cập nhật 28/10/2026: cả 57 tính năng có mục Thiết kế chi tiết (playtest LDPlayer, 177 ảnh mới, config live, Excel tổng hợp); phân tích ưu tiên banner popup thắng, hàng đợi popup và lịch sự kiện; 20 bài phân tích."
   },
   {
+   "id": "goodssort",
+   "name": "Goods Sort",
+   "url": "https://haodhh-r1abi.github.io/GoodsSortPuzzleWiki/",
+   "icon": "assets/img/goodssort.png",
+   "studio": "Falcon Games",
+   "genre": "Sort puzzle 3D",
+   "note": "Cập nhật 28/10/2026: cả 61 tính năng có mục Thiết kế chi tiết (playtest LDPlayer màn 501–504, 76 ảnh mới, Excel tổng hợp); giải mã save SaveGamePro, 4.500 màn baked, 21 sự kiện."
+  },
+  {
    "id": "matchfactory",
    "name": "Match Factory",
    "url": "https://haodhh-r1abi.github.io/MatchFactoryWiki/",

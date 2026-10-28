@@ -14,6 +14,7 @@ mỗi lần mở.
 | Royal Match | https://haodhh-r1abi.github.io/RoyalMatchWiki/ |
 | Magic Sort | https://haodhh-r1abi.github.io/MagicSortWiki/ |
 | Block Out! | https://haodhh-r1abi.github.io/BlockOutWiki/ |
+| Goods Sort | https://haodhh-r1abi.github.io/GoodsSortPuzzleWiki/ |
 | Match Factory | https://haodhh-r1abi.github.io/MatchFactoryWiki/ |
 | Fish Sort Puzzle | https://haodhh-r1abi.github.io/FishSortPuzzleWiki/ |
 | Glow Fashion Idol | https://haodhh-r1abi.github.io/GlowFashionIdolWiki/ |
