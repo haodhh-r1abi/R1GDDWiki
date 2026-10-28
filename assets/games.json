@@ -59,11 +59,11 @@
   {
    "id": "colonyflow",
    "name": "Colony Flow",
-   "url": "https://r1-gdd-wiki.pages.dev/colonyflow/",
+   "url": "https://haodhh-r1abi.github.io/ColonyFlowWiki/",
    "icon": "assets/img/colonyflow.png",
    "studio": "ABI Games",
    "genre": "Pixel sort puzzle",
-   "note": "Cập nhật 22/10/2026: 33 trang tính năng, 12 bài phân tích (phân khúc theo campaign UA, 4 sự kiện chuỗi thắng, League & tường nội dung), 2.700 level giải mã kèm thư viện hình, 21.760 method pseudo-C."
+   "note": "Cập nhật 28/10/2026: playtest lại League và 6 sự kiện LiveOps (Colony Pass, Sweet Meal, Spooky Mission, Sweet Steps, Boat Race, Nest Quest) trên giả lập, thêm khoảng 120 ảnh luồng UI; 33 trang tính năng, 12 bài phân tích, 2.700 level giải mã."
   },
   {
    "id": "glow",
