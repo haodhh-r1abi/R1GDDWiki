@@ -75,6 +75,15 @@
    "note": "Cập nhật 28/10/2026: playtest lại League và 6 sự kiện LiveOps (Colony Pass, Sweet Meal, Spooky Mission, Sweet Steps, Boat Race, Nest Quest) trên giả lập, thêm khoảng 120 ảnh luồng UI; 33 trang tính năng, 12 bài phân tích, 2.700 level giải mã."
   },
   {
+   "id": "foodiesizzle",
+   "name": "Foodie Sizzle",
+   "url": "https://haodhh-r1abi.github.io/FoodieSizzleWiki/",
+   "icon": "assets/img/foodiesizzle.png",
+   "studio": "ABI Games",
+   "genre": "Skewer sort (triple match)",
+   "note": "Mới 28/10/2026: làm từ đầu — 47 tính năng, mỗi trang có Thiết kế chi tiết (playtest LDPlayer cấp 1–63, 104 ảnh), 1.000 màn giải mã + thống kê, Remote Config v807, Excel GDD + bảng chi tiết."
+  },
+  {
    "id": "glow",
    "name": "Glow Fashion Idol",
    "url": "https://haodhh-r1abi.github.io/GlowFashionIdolWiki/",
