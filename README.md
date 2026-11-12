@@ -12,6 +12,7 @@ mỗi lần mở.
 | Game | Địa chỉ |
 |---|---|
 | Royal Match | https://haodhh-r1abi.github.io/RoyalMatchWiki/ |
+| Royal Kingdom | https://haodhh-r1abi.github.io/RoyalKingdomWiki/ |
 | Magic Sort | https://haodhh-r1abi.github.io/MagicSortWiki/ |
 | Block Out! | https://haodhh-r1abi.github.io/BlockOutWiki/ |
 | Goods Sort | https://haodhh-r1abi.github.io/GoodsSortPuzzleWiki/ |

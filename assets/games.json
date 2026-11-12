@@ -12,6 +12,15 @@
    "note": "Bộ tài liệu lớn nhất — 80 tính năng, 14.851 màn."
   },
   {
+   "id": "royalkingdom",
+   "name": "Royal Kingdom",
+   "url": "https://haodhh-r1abi.github.io/RoyalKingdomWiki/",
+   "icon": "assets/img/royalkingdom.png",
+   "studio": "Dream Games",
+   "genre": "Match-3 + xây vương quốc",
+   "note": "Mới 12/11/2026: làm từ đầu (build 34771) — 83 tính năng, mỗi trang có Thiết kế chi tiết; 6 bài phân tích (gồm so sánh với Royal Match); 5.600 level + bản ThreeColor giải mã, giao thức backend 422 bảng. Chưa có ảnh playtest."
+  },
+  {
    "id": "magicsort",
    "name": "Magic Sort",
    "url": "https://haodhh-r1abi.github.io/MagicSortWiki/",
