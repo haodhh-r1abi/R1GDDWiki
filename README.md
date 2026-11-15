@@ -15,6 +15,7 @@ mỗi lần mở.
 | Royal Kingdom | https://haodhh-r1abi.github.io/RoyalKingdomWiki/ |
 | Magic Sort | https://haodhh-r1abi.github.io/MagicSortWiki/ |
 | Block Out! | https://haodhh-r1abi.github.io/BlockOutWiki/ |
+| Jam Bus: Sandfall | https://haodhh-r1abi.github.io/JamBusWiki/ |
 | Goods Sort | https://haodhh-r1abi.github.io/GoodsSortPuzzleWiki/ |
 | Foodie Sizzle | https://haodhh-r1abi.github.io/FoodieSizzleWiki/ |
 | Match Factory | https://haodhh-r1abi.github.io/MatchFactoryWiki/ |

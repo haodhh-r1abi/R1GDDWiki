@@ -39,6 +39,15 @@
    "note": "Cập nhật 28/10/2026: cả 57 tính năng có mục Thiết kế chi tiết (playtest LDPlayer, 177 ảnh mới, config live, Excel tổng hợp); phân tích ưu tiên banner popup thắng, hàng đợi popup và lịch sự kiện; 20 bài phân tích."
   },
   {
+   "id": "jambus",
+   "name": "Jam Bus: Sandfall",
+   "url": "https://haodhh-r1abi.github.io/JamBusWiki/",
+   "icon": "assets/img/jambus.png",
+   "studio": "—",
+   "genre": "Bus jam + sand sort",
+   "note": "Mới 15/11/2026: Cocos2d-x C++ (không phải Unity) — giải mã tài nguyên RC4, đọc 18.598 hàm C++; 72 tính năng, mỗi trang có Thiết kế chi tiết; 6 bài phân tích; 120 level + 790 tranh cát. Chưa có ảnh playtest."
+  },
+  {
    "id": "goodssort",
    "name": "Goods Sort",
    "url": "https://haodhh-r1abi.github.io/GoodsSortPuzzleWiki/",
